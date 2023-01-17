@@ -155,7 +155,7 @@ if __name__ == "__main__":
                 # tabnet, boosting, resnet, mlp
                 # MODEL = "mlp"
                 DATASET = f"{ds}{suffix}{suffix2}"
-                ROUNDS = 2
+                ROUNDS = 100
                 print(f"Starting to optimize\n{DATASET=}\n{MODEL=}\n{ROUNDS=}")
                 X: np.ndarray
                 y: np.ndarray
@@ -171,7 +171,6 @@ if __name__ == "__main__":
                 X, y = import_real_data(DATASET, path_to_dir="data")
                 print(X.shape, y.shape)
                 if MODEL in ["tabnet", "resnet", "mlp"]:
-
                     qt = QuantileTransformer(random_state=42)
                     X = qt.fit_transform(X)
 
