@@ -1,35 +1,29 @@
-import pandas as pd
 import numpy as np
-from sklearn.preprocessing import (
-    StandardScaler,
-    MaxAbsScaler,
-    QuantileTransformer,
-    OneHotEncoder,
-)
-from sklearn.compose import ColumnTransformer
-from sklearn.experimental import enable_hist_gradient_boosting
+import pandas as pd
+from sklearn.compose import ColumnTransformer, TransformedTargetRegressor
 from sklearn.ensemble import (
     HistGradientBoostingClassifier,
     HistGradientBoostingRegressor,
-    RandomForestRegressor,
 )
-from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.compose import TransformedTargetRegressor
-import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import (
+    MaxAbsScaler,
+    OneHotEncoder,
+    QuantileTransformer,
+    StandardScaler,
+)
 
 
 def remove_high_cardinality(X, y, categorical_mask, threshold=20):
     high_cardinality_mask = X.nunique() > threshold
     print(
-        "high cardinality columns: {}".format(
-            X.columns[high_cardinality_mask * categorical_mask]
-        )
+        f"high cardinality columns: {X.columns[high_cardinality_mask * categorical_mask]}"
     )
     n_high_cardinality = sum(categorical_mask * high_cardinality_mask)
     X = X.drop(X.columns[categorical_mask * high_cardinality_mask], axis=1)
-    print("Removed {} high-cardinality categorical features".format(n_high_cardinality))
+    print(f"Removed {n_high_cardinality} high-cardinality categorical features")
     categorical_mask = [
         categorical_mask[i]
         for i in range(len(categorical_mask))
@@ -42,9 +36,7 @@ def remove_pseudo_categorical(X, y):
     """Remove columns where most values are the same"""
     pseudo_categorical_cols_mask = X.nunique() < 10
     print(
-        "Removed {} columns with pseudo-categorical values on {} columns".format(
-            sum(pseudo_categorical_cols_mask), X.shape[1]
-        )
+        f"Removed {sum(pseudo_categorical_cols_mask)} columns with pseudo-categorical values on {X.shape[1]} columns"
     )
     X = X.drop(X.columns[pseudo_categorical_cols_mask], axis=1)
     return X, y, sum(pseudo_categorical_cols_mask)
@@ -53,9 +45,7 @@ def remove_pseudo_categorical(X, y):
 def remove_rows_with_missing_values(X, y):
     missing_rows_mask = pd.isnull(X).any(axis=1)
     print(
-        "Removed {} rows with missing values on {} rows".format(
-            sum(missing_rows_mask), X.shape[0]
-        )
+        f"Removed {sum(missing_rows_mask)} rows with missing values on {X.shape[0]} rows"
     )
     X = X[~missing_rows_mask]
     y = y[~missing_rows_mask]
@@ -66,16 +56,12 @@ def remove_missing_values(X, y, threshold=0.7, return_missing_col_mask=True):
     """Remove columns where most values are missing, then remove any row with missing values"""
     missing_cols_mask = pd.isnull(X).mean(axis=0) > threshold
     print(
-        "Removed {} columns with missing values on {} columns".format(
-            sum(missing_cols_mask), X.shape[1]
-        )
+        f"Removed {sum(missing_cols_mask)} columns with missing values on {X.shape[1]} columns"
     )
     X = X.drop(X.columns[missing_cols_mask], axis=1)
     missing_rows_mask = pd.isnull(X).any(axis=1)
     print(
-        "Removed {} rows with missing values on {} rows".format(
-            sum(missing_rows_mask), X.shape[0]
-        )
+        f"Removed {sum(missing_rows_mask)} rows with missing values on {X.shape[0]} rows"
     )
     X = X[~missing_rows_mask]
     y = y[~missing_rows_mask]
@@ -87,8 +73,7 @@ def remove_missing_values(X, y, threshold=0.7, return_missing_col_mask=True):
             sum(missing_rows_mask),
             missing_cols_mask.values,
         )
-    else:
-        return X, y, sum(missing_cols_mask), sum(missing_rows_mask)
+    return X, y, sum(missing_cols_mask), sum(missing_rows_mask)
 
 
 def balance(x, y):
@@ -96,9 +81,7 @@ def balance(x, y):
     print("Balancing")
     print(x.shape)
     indices = [(y == i) for i in np.unique(y)]
-    sorted_classes = np.argsort(
-        list(map(sum, indices))
-    )
+    sorted_classes = np.argsort(list(map(sum, indices)))
 
     n_samples_min_class = sum(indices[sorted_classes[-2]])
     print("n_samples_min_class", n_samples_min_class)
@@ -174,7 +157,7 @@ def check_if_task_too_easy(
         n_iters = 3
     else:
         n_iters = 5
-    for iter in range(n_iters):
+    for _ in range(n_iters):
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_prop)
 
         if X_test.shape[0] > 30000:
@@ -225,8 +208,8 @@ def check_if_task_too_easy(
             score_hbgt = hbgt.score(X_test, y_test)
         score_hbgt_list.append(score_hbgt)
         score_linear_list.append(score_linear)
-    print("Linear score: {}".format(score_linear_list))
-    print("HBGT score: {}".format(score_hbgt_list))
+    print(f"Linear score: {score_linear_list}")
+    print(f"HBGT score: {score_hbgt_list}")
     if regression:
         score_linear = np.median(score_linear_list)
         score_hbgt = np.median(score_hbgt_list)
@@ -236,13 +219,10 @@ def check_if_task_too_easy(
     if not regression:
         if (score_hbgt - score_linear) < 0.05 * score_hbgt:
             return True, score_hbgt, score_linear
-        else:
-            return False, score_hbgt, score_linear
-    else:
-        if (score_hbgt - score_linear) < 0.05 * np.abs(score_hbgt):
-            return True, score_hbgt, score_linear
-        else:
-            return False, score_hbgt, score_linear
+        return False, score_hbgt, score_linear
+    if (score_hbgt - score_linear) < 0.05 * np.abs(score_hbgt):
+        return True, score_hbgt, score_linear
+    return False, score_hbgt, score_linear
 
 
 def remove_unwanted_columns(X, dataset_id):
@@ -269,7 +249,7 @@ def remove_unwanted_columns(X, dataset_id):
         print(X.columns)
         print(unwanted_columns)
         return X, 0
-    print("Removed {} unwanted_columns".format(len(unwanted_columns)))
+    print(f"Removed {len(unwanted_columns)} unwanted_columns")
     return X, len(unwanted_columns)
 
 
@@ -311,7 +291,6 @@ def specify_categorical(X, dataset_id):
 def transform_target(y, keyword):
     if keyword == "log":
         return np.sign(y) * np.log(1 + np.abs(y))
-    elif keyword == "none":
+    if keyword == "none":
         return y
-    elif pd.isnull(y):
-        return y
+    return y
