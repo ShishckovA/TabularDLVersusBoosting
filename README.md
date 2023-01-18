@@ -45,7 +45,7 @@ wine | fifa
 ![wine_quality](plots/10_wine_quality,_20_random_features,_rotated.png "wine_quality") | ![fifa](plots/11_fifa,_20_random_features,_rotated.png "fifa")
 
 ### Примеры запусков
-* | *
+x | x
 :-:|:-:
 Boosting | MLP 
 ![boosting](images_final/fifa_1_trash_boosting_0.6772.png "boosting") | ![mlp](images_final/fifa_1_trash_mlp_0.6517.png "mlp") 
