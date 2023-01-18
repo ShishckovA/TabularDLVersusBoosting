@@ -5,7 +5,7 @@
 
 В отличие от авторов, использующих случайный поиск, я использую отбор гиперпараметров с помощью `Optuna`, что должно уменьшить число запусков до сходимости -- с 200 у авторов до 100 у меня. Логирование осуществляется в wandb, а также в папку `images_final`.
 
-## Для запуска:
+## Для запуска
 1. Установите зависимости: `pip3 install -r requirements.txt`
 2. Выберите нужный конфиг (датасет, модель, число итераций отбора параметров) в теле файла `src/test.py`
 3. Запустите обучение: `python3 src/test.py`
@@ -45,6 +45,11 @@ wine | fifa
 ![wine_quality](plots/10_wine_quality,_20_random_features,_rotated.png "wine_quality") | ![fifa](plots/11_fifa,_20_random_features,_rotated.png "fifa")
 
 ### Примеры запусков
-    boosting | MLPerc | resnet | tabnet
-:-:|:-:|:-:|:-:
-![boosting](images_final/fifa_1_trash_boosting_0.6772.png "boosting") | ![mlp](images_final/fifa_1_trash_mlp_0.6517.png "mlp") | ![resnet](images_final/fifa_1_trash_resnet_0.6551.png "resnet") | ![boosting](images_final/fifa_1_trash_tabnet_0.6632.png "boosting") |
+--- | ---
+:-:|:-:
+Boosting | MLP 
+![boosting](images_final/fifa_1_trash_boosting_0.6772.png "boosting") | ![mlp](images_final/fifa_1_trash_mlp_0.6517.png "mlp") 
+ResNet | TabNet
+![resnet](images_final/fifa_1_trash_resnet_0.6551.png "resnet") | ![tabnet](images_final/fifa_1_trash_tabnet_0.6632.png "tabnet") |
+
+Отчёт в wandb: [https://wandb.ai/shishckova/tabular_final](https://wandb.ai/shishckova/tabular_final)

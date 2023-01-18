@@ -24,11 +24,16 @@ for suffix in ["", "_1_trash", "_5_trash", "_20_trash"]:
                 if plot_name not in summary_list:
                     continue
                 scores[model] = summary_list[plot_name][-1]
-            plt.figure(figsize=(15, 10))
             plt.style.use('ggplot')
             plt.bar(range(len(scores)), list(scores.values()), color=['r', 'y', 'g', 'b'])
             plt.xticks(range(len(scores)), list(scores.keys()))
-            plt.yticks(np.arange(0, 1, 0.02))
+            if max(scores.values()) > 0.3:
+                step = 0.05
+            elif max(scores.values()) > 0.25:
+                step = 0.02
+            else:
+                step = 0.01
+            plt.yticks(np.arange(0, 1, step))
             plt.ylim([-0, 1.1 * max(scores.values())])
 
             title = f"{ds}"
